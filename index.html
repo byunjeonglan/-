@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>음식 궁합 추천 도우미</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen flex items-center justify-center p-4">
+
+    <div class="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md">
+        <h1 class="text-2xl font-bold text-gray-800 mb-6 text-center">오늘의 음식 궁합</h1>
+        
+        <div class="flex gap-2 mb-6">
+            <input 
+                type="text" 
+                id="foodInput" 
+                placeholder="음식 이름 입력 (예: 불고기, 감자떡)" 
+                class="flex-1 border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            >
+            <button 
+                onclick="recommendFood()" 
+                class="bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 transition"
+            >
+                검색
+            </button>
+        </div>
+
+        <div id="resultArea" class="hidden animate-in fade-in zoom-in duration-300">
+            <h2 class="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-3" id="resultTitle">추천 조합:</h2>
+            <ul id="recommendList" class="space-y-2"></ul>
+        </div>
+
+        <div id="noResult" class="hidden text-center text-gray-500 py-4">
+            죄송합니다. 해당 음식의 궁합 정보를 찾을 수 없습니다.
+        </div>
+    </div>
+
+    <script>
+        const foodDB = {
+            "돼지고기": ["새우젓", "표고버섯", "마늘", "양파", "부추"],
+            "소고기": ["배", "깻잎", "양파", "무", "마늘"],
+            "불고기": ["상추", "깻잎", "마늘", "양파", "파채"],
+            "감자": ["치즈", "우유", "양파", "버터", "베이컨"],
+            "감자떡": ["팥", "콩가루", "우유", "꿀", "식혜"],
+            "닭고기": ["인삼", "마늘", "부추", "밤", "대추"],
+            "고구마": ["김치", "우유", "사과", "동치미", "플레인요거트"]
+        };
+
+        function recommendFood() {
+            const input = document.getElementById('foodInput').value.trim();
+            const list = document.getElementById('recommendList');
+            const resultArea = document.getElementById('resultArea');
+            const noResult = document.getElementById('noResult');
+            const resultTitle = document.getElementById('resultTitle');
+
+            // Reset states
+            list.innerHTML = "";
+            resultArea.classList.add('hidden');
+            noResult.classList.add('hidden');
+
+            if (!input) return;
+
+            // Normalize function to handle spaces and lowercase
+            const normalize = (str) => str.replace(/\s+/g, '').toLowerCase();
+            const normalizedInput = normalize(input);
+
+            // Searching logic: check if normalized input matches any key
+            let matchedKey = null;
+            Object.keys(foodDB).forEach(key => {
+                if (normalize(key).includes(normalizedInput) || normalizedInput.includes(normalize(key))) {
+                    matchedKey = key;
+                }
+            });
+
+            if (matchedKey) {
+                resultTitle.textContent = `${matchedKey}와(과) 잘 어울리는 음식:`;
+                foodDB[matchedKey].forEach(item => {
+                    const li = document.createElement('li');
+                    li.className = "bg-indigo-50 text-indigo-700 px-4 py-2 rounded-lg font-medium shadow-sm";
+                    li.textContent = item;
+                    list.appendChild(li);
+                });
+                resultArea.classList.remove('hidden');
+            } else {
+                noResult.classList.remove('hidden');
+            }
+        }
+
+        // Add Enter key listener
+        document.getElementById('foodInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') recommendFood();
+        });
+    </script>
+</body>
+</html>
